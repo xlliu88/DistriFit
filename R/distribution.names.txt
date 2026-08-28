@@ -1,0 +1,15 @@
+distr.abbr	distr.name	distr.type	n.params	param.1	param.2	param.3	default.1	default.2	default.3	support.min	support.max
+beta	beta	continuous	2	shape1	shape2		1	1		0	1
+binom	binomial	discrete	2	size	prob		10	0.5		0	size
+cauchy	cauchy	continuous	2	location	scale		0	1		-Inf	Inf
+exp	exponential	continuous	1	rate			1			0	Inf
+gamma	gamma	continuous	2	shape	rate		1	1		0	Inf
+geom	geometric	discrete	1	prob			0.5			0	Inf
+nbinom	negative binomial	discrete	2	size	prob		10	0.5		0	Inf
+norm	normal	continuous	2	mean	sd		0	1		-Inf	Inf
+pois	poisson	discrete	1	lambda			1			0	Inf
+tri	triangular	continuous	3	min	mode	max	0	1	2	min	max
+unif	uniform	continuous	2	min	max		0	1		min	max
+weibull	weibull	continuous	2	shape	lambda		1	1		0	Inf
+erlang	erlang	continuous	2	shape	rate		1	1		0	Inf
+bern	bernoulli	discrete	1	prob			0.5			0	1
