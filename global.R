@@ -42,7 +42,28 @@ DISTR_CHOICES <- setNames(
   sprintf('%s (%s)', DISTR.NAMES$distr.name, DISTR.NAMES$distr.abbr)
 )
 
+getTopFits <- function(x, pcutoff, alpha, selected_distrs) {
+    distrs <- if (is.null(selected_distrs) || "All applicable" %in% selected_distrs) NULL else selected_distrs
+    n.top <- ifelse(!is.null(distrs), length(distrs), 3)
+    fits <- tryCatch(
+      distrEstimate(x = x, distribution = distrs, alpha = alpha, return.best = FALSE),
+      error = function(e) NULL
+    )
+    if (is.null(fits) || length(fits) == 0) return(NULL)
 
+    pvals      <- sapply(fits, function(r) r$p.value)
+    res.sorted <- fits[order(pvals, decreasing = TRUE)]
+    topFit       <- res.sorted[sapply(res.sorted, function(r) r$p.value >= pcutoff)]
+
+    if (length(topFit) > 0) {
+      topFit[seq_len(min(n.top, length(topFit)))]
+    } else {
+      res.sorted[seq_len(min(n.top, length(res.sorted)))]
+    }
+}
+
+
+## the main function to plot data distribution and fitted density function
 plotDistr <- function(data, top.results = NULL, is.fitted = FALSE, title = "") {
   n <- length(data)
   brks <- getBreaks(data)
@@ -83,7 +104,7 @@ plotDistr <- function(data, top.results = NULL, is.fitted = FALSE, title = "") {
                   col = NA, border = rgb(0.4,0.4,0.4, alpha = 0.5), 
                   outline = F,
                   add = T)
-  
+  set.seed(64)
   jitter_y <- jitter(rep(1, length(data)-2), amount = 0.2)
   points(sort(data)[2:(n-1)], 
          jitter_y, 

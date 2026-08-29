@@ -3,7 +3,7 @@
 ##    PMF functions for discrete distributions,
 ##    some help functions
 
-
+ 
 getDensity <- function(distr_abbr, x, params) {
   distr_type <- getDistrInfo(distr_abbr)$type
   if(distr_type == 'discrete') x = round(x)
@@ -51,13 +51,44 @@ list2tsv <- function(ds_list) {
   paste(out_str, collapse = "\n")
 }
 
+makeSafeId <- function(id, algo = 'md5') {
+    paste0("ds_", digest::digest(id, algo = algo))
+}
+
 ## format parameter list for better display
-param2str <- function(param) {
+param2str <- function(param, collapse = '\t', pad = 10, indent = 4) {
   if(is.list(param)) param <- unlist(param)
   if(is.null(names(param))) names(param) <- str_c('parameter', 1:length(param))
-  s <- str_c(names(param), round(param, 4), sep = '=') %>% 
-    str_c(., collapse = ';\t')
+  
+  pad <- max(pad, nchar(names(param)))
+  pad <- ifelse(collapse == "\n", pad, 0)
+  s <- sapply(names(param), function(pname) {
+    sprintf("%-*s%-*s %.4f",indent," ", pad, paste0(pname, ":"), param[[pname]])
+  }) %>% str_c(., collapse = collapse)
+
   return(s)
+}
+
+
+## to format fit results for display
+## input: 
+##    fit.res: a list of fitting result from distrEstimate
+## return: 
+##    a vector of strings
+##    each element is a formatted string of one fitting result
+fit2str <- function(fit.res, collapse = '\n', pad = 12) {
+  dname <- fit.res$distr.name %>% rev() %>% `[`(1) %>% 
+    sprintf("%s: %s", "Distribution", .)
+  pval <- fit.res$p.value #%>% 
+  pval_str <- ifelse(pval < 1e-4, sprintf("%.4e", pval), sprintf("%.4f",pval)) %>% 
+    sprintf("  %-*s %s", pad, "p-value:", .)
+  chisq <- fit.res$chisq.statistics %>% round(4) %>% 
+    sprintf("  %-*s %s", pad, "Chisq:", .)
+  param_str <- param2str(fit.res$parameters, collapse = "\n", pad = pad-2) %>% 
+    sprintf("  %s:\n%s", "Parameters", .)
+  
+  str <- c(dname, pval_str, chisq, param_str) %>% str_c(., collapse = "\n")
+ return(str) 
 }
 
 ## to get information for a given distribution

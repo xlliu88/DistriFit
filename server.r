@@ -3,12 +3,9 @@ shinyServer(function(input, output, session) {
   dataStore    <- reactiveVal(list())
   dataMetaInfo <- reactiveVal(list())
   genCounter   <- reactiveVal(0)
-  previewState <- reactiveValues()
   fitStateMap  <- reactiveValues()
 
-  makeSafeId <- function(dname) {
-    paste0("ds_", digest::digest(dname, algo = "md5"))
-  }
+ 
 
   output$gen_params_ui <- renderUI({
     req(input$gen_distr)
@@ -69,7 +66,7 @@ shinyServer(function(input, output, session) {
     dataMetaInfo(metainfo)
     
     fitStateMap[[dataset_name]]  <- FALSE
-    previewState[[dataset_name]] <- FALSE
+    # previewState[[dataset_name]] <- FALSE
   })
 
   observeEvent(input$datafile, {
@@ -97,7 +94,7 @@ shinyServer(function(input, output, session) {
         entry_key <- sprintf("File: %s [%s]", input$datafile$name, col_name)
         current_list[[entry_key]] <- vec
         fitStateMap[[entry_key]]  <- FALSE
-        previewState[[entry_key]] <- FALSE
+        # previewState[[entry_key]] <- FALSE
       }
     }
     
@@ -110,6 +107,8 @@ shinyServer(function(input, output, session) {
 
   observeEvent(input$gen_reset, {
     dataStore(list())
+    dataMetaInfo(list())
+    fitStateMap()
     genCounter(0)
     showNotification("All generated data cleared.", type = "message")
   })
@@ -137,24 +136,6 @@ shinyServer(function(input, output, session) {
     }
   )
 
-  getTopFits <- function(x, pcutoff, alpha, selected_distrs) {
-    distrs <- if (is.null(selected_distrs) || "All applicable" %in% selected_distrs) NULL else selected_distrs
-    fits <- tryCatch(
-      distrEstimate(x = x, distribution = distrs, alpha = alpha, return.best = FALSE),
-      error = function(e) NULL
-    )
-    if (is.null(fits) || length(fits) == 0) return(NULL)
-
-    pvals      <- sapply(fits, function(r) r$p.value)
-    res.sorted <- fits[order(pvals, decreasing = TRUE)]
-    good       <- res.sorted[sapply(res.sorted, function(r) r$p.value >= pcutoff)]
-
-    if (length(good) > 0) {
-      good[seq_len(min(3, length(good)))]
-    } else {
-      res.sorted[seq_len(min(3, length(res.sorted)))]
-    }
-  }
 
   # --- HTML REPORT GENERATOR WITH EMBEDDED PLOTS ---
   output$dl_report_html <- downloadHandler(
@@ -163,6 +144,7 @@ shinyServer(function(input, output, session) {
     },
     content = function(file) {
       ds <- dataStore()
+      dm <- dataMetaInfo()
       if (length(ds) == 0) {
         writeLines("<html><body><h3>No datasets available to generate report.</h3></body></html>", file)
         return()
@@ -185,6 +167,7 @@ shinyServer(function(input, output, session) {
 
       for (dname in names(ds)) {
         x <- ds[[dname]]
+        m <- dm[[dname]]
         sid <- makeSafeId(dname)
         is_fitted <- isTRUE(fitStateMap[[dname]])
         
@@ -239,69 +222,59 @@ shinyServer(function(input, output, session) {
   # --- UI RENDERER & DYNAMIC DATA BINDINGS ---
   output$dynamicDataRows <- renderUI({
     ds <- dataStore()
-    dsMeta <- dataMetaInfo()
+    dm <- dataMetaInfo()
     if (length(ds) == 0) {
       return(wellPanel(helpText("No datasets generated or uploaded yet. Click 'Generate Numbers' or upload a file.")))
     }
 
     items <- lapply(names(ds), function(dname) {
       safe_id <- makeSafeId(dname)
-      show_preview <- isTRUE(previewState[[dname]])
 
       # Register outputs dynamically per dataset
       local({
         target_name <- dname
         sid         <- safe_id
-
-        output[[paste0("combined_plot_", sid)]] <- renderPlot({
+        
+        re.getTopFits <- reactive({
           current_ds <- dataStore()
           vec <- current_ds[[target_name]]
           req(!is.null(vec))
+          
           is_fitted <- isTRUE(fitStateMap[[target_name]])
+          if (!is_fitted) {
+            return(list(vec = vec, is_fitted = is_fitted, fits = NULL))
+          }
           
           fit_distrs <- input[[paste0("fit_distrs_", sid)]]
           alpha      <- input[[paste0("alpha_", sid)]] %||% 0.05
           pcutoff    <- input[[paste0("pcutoff_", sid)]] %||% 0.1
-
-          top_fits <- if (is_fitted) getTopFits(vec, pcutoff, alpha, fit_distrs) else NULL
-          plotDistr(vec, top.results = top_fits, is.fitted = is_fitted, title = target_name)
+          
+          fits <- getTopFits(vec, pcutoff, alpha, fit_distrs)
+          return(list(vec = vec,
+                    is_fitted = is_fitted,
+                    fits = fits
+                ))
+        })
+        
+        output[[paste0("combined_plot_", sid)]] <- renderPlot({
+          top.fits <- re.getTopFits()
+          plotDistr(top.fits$vec, top.results = top.fits$fits, is.fitted = top.fits$is_fitted, title = target_name)
         })
 
         output[[paste0("details_", sid)]] <- renderText({
-          is_fitted <- isTRUE(fitStateMap[[target_name]])
-          if (!is_fitted) return("no fitting detail available")
-          
-          current_ds <- dataStore()
-          vec <- current_ds[[target_name]]
-          if (is.null(vec)) return("")
-
-          fit_distrs <- input[[paste0("fit_distrs_", sid)]]
-          alpha      <- input[[paste0("alpha_", sid)]] %||% 0.05
-          pcutoff    <- input[[paste0("pcutoff_", sid)]] %||% 0.1
-
-          top_fits <- getTopFits(vec, pcutoff, alpha, fit_distrs)
-          if (is.null(top_fits) || length(top_fits) == 0) {
+          top.fits <- re.getTopFits()
+          if (!top.fits$is_fitted) return("no fitting detail available")
+          if (is.null(top.fits$fits) || length(top.fits$fits) == 0) {
             return("No valid distributions fit for this data.")
           }
-          
-          out <- sapply(seq_along(top_fits), function(k) {
-            r <- top_fits[[k]]
-            pval <- r$p.value
-            pval_str <- if (pval < 0.0001) sprintf("%.4e", pval) else sprintf("%.4f", pval)
-            params <- as.list(r$parameters)
-            param_lines <- sapply(names(params), function(pname) {
-              sprintf("  %-10s = %.4f", pname, params[[pname]])
-            })
-            param_str <- paste(param_lines, collapse = "\n")
-            sprintf("#%d Distribution: %s\n   P-Value: %s\n   ChiSq:   %.2f\nParameters:\n%s",
-                    k, rev(r$distr.name)[1], pval_str, r$chisq.statistics, param_str)
-          })
-          paste(out, collapse = "\n-----------------------------\n")
+          str_out <- sapply(top.fits$fits, function(r) fit2str(r))
+
+          paste(str_out, collapse = "\n-----------------------------\n")
         })
 
       })
 
-      ## render data row
+      ## render data row ui
       wellPanel(
         fluidRow(
           column(8, h4(dname)),
@@ -318,7 +291,7 @@ shinyServer(function(input, output, session) {
                  plotOutput(paste0("combined_plot_", safe_id), height = "380px")),
           
           column(3, 
-                 h5("Fit Details (Top 3)"),
+                 h5("Fit Details"),
                  verbatimTextOutput(paste0("details_", safe_id))),
           column(3,
                  fluidRow(
@@ -356,6 +329,7 @@ shinyServer(function(input, output, session) {
   # --- GLOBAL EVENT DELEGATOR FOR PREVIEW, FIT & REMOVE BUTTONS ---
   observe({
     ds <- dataStore()
+    dm <- dataMetaInfo()
     if (length(ds) == 0) return()
 
     for (dname in names(ds)) {
@@ -366,16 +340,25 @@ shinyServer(function(input, output, session) {
         btn_rem_id  <- paste0("btn_rem_", sid)
         btn_fit_id  <- paste0("btn_fit_", sid)
 
-        observeEvent(input[[btn_fit_id]], {
-          fitStateMap[[target_name]] <- TRUE
-        }, ignoreInit = TRUE, autoDestroy = TRUE)
+        observeEvent(input[[btn_fit_id]], 
+                     {
+                      fitStateMap[[target_name]] <- TRUE
+                      }, 
+                    ignoreInit = TRUE, 
+                    autoDestroy = TRUE)
 
-        observeEvent(input[[btn_rem_id]], {
-          current_ds <- dataStore()
-          current_ds[[target_name]] <- NULL
-          dataStore(current_ds)
-          showNotification(sprintf("Removed dataset: %s", target_name), type = "message")
-        }, ignoreInit = TRUE, autoDestroy = TRUE)
+        observeEvent(input[[btn_rem_id]], 
+                     {
+                      current_ds <- dataStore()
+                      current_dm <- dataMetaInfo()
+                      current_ds[[target_name]] <- NULL
+                      current_dm[[target_name]] <- NULL
+                      dataStore(current_ds)
+                      dataMetaInfo(current_dm)
+                      showNotification(sprintf("Removed dataset: %s", target_name), type = "message")
+                      }, 
+                     ignoreInit = TRUE, 
+                     autoDestroy = TRUE)
       })
     }
   })

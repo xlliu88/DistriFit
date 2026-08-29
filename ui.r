@@ -75,6 +75,7 @@ shinyUI(fluidPage(
 
       hr(),
       h5("Global Data Actions"),
+      
       uiOutput("copy_button_ui"),
       downloadButton("dl_all_btn", 
                      "Save All Data", 
