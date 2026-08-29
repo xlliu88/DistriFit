@@ -1,5 +1,3 @@
-# library(base64enc)
-
 shinyServer(function(input, output, session) {
 
   dataStore    <- reactiveVal(list())
@@ -63,7 +61,6 @@ shinyServer(function(input, output, session) {
                          params = params)
 
     current_list <- dataStore()
-    # current_list[[count]] <- x
     current_list[[dataset_name]] <- x
     dataStore(current_list)
     
@@ -72,9 +69,7 @@ shinyServer(function(input, output, session) {
     dataMetaInfo(metainfo)
     
     fitStateMap[[dataset_name]]  <- FALSE
-    fitStateMap[[dataset_name]]  <- FALSE
-    #previewState[[count]] <- FALSE
-    #previewState[[count]] <- FALSE
+    previewState[[dataset_name]] <- FALSE
   })
 
   observeEvent(input$datafile, {
@@ -113,14 +108,6 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  observeEvent(input$fit_btn, {
-    ds <- dataStore()
-    req(length(ds) > 0)
-    for (dname in names(ds)) {
-      fitStateMap[[dname]] <- TRUE
-    }
-  })
-
   observeEvent(input$gen_reset, {
     dataStore(list())
     genCounter(0)
@@ -151,7 +138,7 @@ shinyServer(function(input, output, session) {
   )
 
   getTopFits <- function(x, pcutoff, alpha, selected_distrs) {
-    distrs <- if ("All applicable" %in% selected_distrs) NULL else selected_distrs
+    distrs <- if (is.null(selected_distrs) || "All applicable" %in% selected_distrs) NULL else selected_distrs
     fits <- tryCatch(
       distrEstimate(x = x, distribution = distrs, alpha = alpha, return.best = FALSE),
       error = function(e) NULL
@@ -198,10 +185,16 @@ shinyServer(function(input, output, session) {
 
       for (dname in names(ds)) {
         x <- ds[[dname]]
+        sid <- makeSafeId(dname)
         is_fitted <- isTRUE(fitStateMap[[dname]])
-        top_fits  <- if (is_fitted) getTopFits(x, input$pcutoff, input$alpha, input$fit_distrs) else NULL
+        
+        pcutoff <- input[[paste0("pcutoff_", sid)]] %||% 0.1
+        alpha   <- input[[paste0("alpha_", sid)]] %||% 0.05
+        fit_distrs <- input[[paste0("fit_distrs_", sid)]] %||% "All applicable"
 
-        # 1. Render Plot to base64 string
+        top_fits <- if (is_fitted) getTopFits(x, pcutoff, alpha, fit_distrs) else NULL
+
+        # Render Plot to base64 string
         tmp_img <- tempfile(fileext = ".png")
         png(tmp_img, width = 800, height = 500, res = 100)
         plotDistr(x, top.results = top_fits, is.fitted = is_fitted, title = dname)
@@ -210,7 +203,7 @@ shinyServer(function(input, output, session) {
         img_b64 <- base64encode(tmp_img)
         unlink(tmp_img)
 
-        # 2. Build Card
+        # Build Card
         html_content <- c(html_content, sprintf("<div class='card'><h2>Dataset: %s</h2>", dname))
         html_content <- c(html_content, sprintf("<p><strong>Observations:</strong> %d | <strong>Mean:</strong> %.4f | <strong>SD:</strong> %.4f</p>", length(x), mean(x), sd(x)))
         
@@ -243,9 +236,10 @@ shinyServer(function(input, output, session) {
     }
   )
 
-  # --- UI RENDERER & DYNAMIC BINDINGS ---
+  # --- UI RENDERER & DYNAMIC DATA BINDINGS ---
   output$dynamicDataRows <- renderUI({
     ds <- dataStore()
+    dsMeta <- dataMetaInfo()
     if (length(ds) == 0) {
       return(wellPanel(helpText("No datasets generated or uploaded yet. Click 'Generate Numbers' or upload a file.")))
     }
@@ -264,7 +258,12 @@ shinyServer(function(input, output, session) {
           vec <- current_ds[[target_name]]
           req(!is.null(vec))
           is_fitted <- isTRUE(fitStateMap[[target_name]])
-          top_fits  <- if (is_fitted) getTopFits(vec, input$pcutoff, input$alpha, input$fit_distrs) else NULL
+          
+          fit_distrs <- input[[paste0("fit_distrs_", sid)]]
+          alpha      <- input[[paste0("alpha_", sid)]] %||% 0.05
+          pcutoff    <- input[[paste0("pcutoff_", sid)]] %||% 0.1
+
+          top_fits <- if (is_fitted) getTopFits(vec, pcutoff, alpha, fit_distrs) else NULL
           plotDistr(vec, top.results = top_fits, is.fitted = is_fitted, title = target_name)
         })
 
@@ -276,7 +275,11 @@ shinyServer(function(input, output, session) {
           vec <- current_ds[[target_name]]
           if (is.null(vec)) return("")
 
-          top_fits <- getTopFits(vec, input$pcutoff, input$alpha, input$fit_distrs)
+          fit_distrs <- input[[paste0("fit_distrs_", sid)]]
+          alpha      <- input[[paste0("alpha_", sid)]] %||% 0.05
+          pcutoff    <- input[[paste0("pcutoff_", sid)]] %||% 0.1
+
+          top_fits <- getTopFits(vec, pcutoff, alpha, fit_distrs)
           if (is.null(top_fits) || length(top_fits) == 0) {
             return("No valid distributions fit for this data.")
           }
@@ -296,50 +299,61 @@ shinyServer(function(input, output, session) {
           paste(out, collapse = "\n-----------------------------\n")
         })
 
-        output[[paste0("text_prev_", sid)]] <- renderText({
-          current_ds <- dataStore()
-          vec <- current_ds[[target_name]]
-          if (is.null(vec)) return("")
-          paste(vec, collapse = "\n")
-        })
       })
 
+      ## render data row
       wellPanel(
         fluidRow(
-          column(6, h4(dname)),
-          column(6, class = "text-right",
-                 actionButton(paste0("btn_prev_", safe_id), 
-                              if (show_preview) "Hide Preview" else "Data Preview", 
-                              class = "btn-sm btn-info", icon = icon("eye")),
+          column(8, h4(dname)),
+          column(4, class = "text-right",
+                 align = 'left',
                  actionButton(paste0("btn_rem_", safe_id), 
-                              "Remove", 
-                              class = "btn-sm btn-danger", icon = icon("trash")))
+                              "Remove Data", 
+                              class = "btn-sm btn-danger", icon = icon("trash"))),
         ),
         hr(),
+        
         fluidRow(
-          column(if (show_preview) 5 else 6, 
+          column(6, 
                  plotOutput(paste0("combined_plot_", safe_id), height = "380px")),
           
-          column(if (show_preview) 4 else 6, 
+          column(3, 
                  h5("Fit Details (Top 3)"),
                  verbatimTextOutput(paste0("details_", safe_id))),
+          column(3,
+                 fluidRow(
+                          selectInput(paste0("fit_distrs_", safe_id),
+                                      "Distributions to test",
+                                      choices = c("All applicable", DISTR_CHOICES), 
+                                      selected = "All applicable", 
+                                      multiple = TRUE),
+                          numericInput(paste0("alpha_", safe_id), 
+                                       "Chi-sq test alpha", 
+                                       value = 0.05, 
+                                       min = 0.001, 
+                                       max = 0.5, 
+                                       step = 0.01),
+                          numericInput(paste0("pcutoff_", safe_id), 
+                                       "P-value cutoff",
+                                       value = 0.1, 
+                                       min = 0, 
+                                       max = 0.999, 
+                                       step = 0.01),
+                          actionButton(paste0("btn_fit_", safe_id), 
+                                       "Fit Data", 
+                                       class = "btn-success btn-block", 
+                                       icon = icon("chart-line"))
+                          )
+                )
 
-          if (show_preview) {
-            column(3, 
-                   h5("Data Preview"),
-                   tags$div(
-                     style = "height: 380px; overflow-y: auto; background-color: #f8f9fa; border: 1px solid #ddd; padding: 8px; font-family: monospace; white-space: pre;",
-                     verbatimTextOutput(paste0("text_prev_", safe_id))
-                   ))
-          } else NULL
-        )
-      )
+         ) ## end of data row
+      )    ## end of wellPanel
     })
     
     do.call(tagList, items)
   })
 
-  # --- GLOBAL EVENT DELEGATOR FOR PREVIEW & REMOVE BUTTONS ---
+  # --- GLOBAL EVENT DELEGATOR FOR PREVIEW, FIT & REMOVE BUTTONS ---
   observe({
     ds <- dataStore()
     if (length(ds) == 0) return()
@@ -349,11 +363,11 @@ shinyServer(function(input, output, session) {
         target_name <- dname
         sid         <- makeSafeId(target_name)
         
-        btn_prev_id <- paste0("btn_prev_", sid)
         btn_rem_id  <- paste0("btn_rem_", sid)
+        btn_fit_id  <- paste0("btn_fit_", sid)
 
-        observeEvent(input[[btn_prev_id]], {
-          previewState[[target_name]] <- !isTRUE(previewState[[target_name]])
+        observeEvent(input[[btn_fit_id]], {
+          fitStateMap[[target_name]] <- TRUE
         }, ignoreInit = TRUE, autoDestroy = TRUE)
 
         observeEvent(input[[btn_rem_id]], {

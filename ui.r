@@ -74,35 +74,6 @@ shinyUI(fluidPage(
       ),
 
       hr(),
-      h4("Fitting options"),
-
-      selectInput("fit_distrs",
-                  "Distributions to test",
-                  choices = c("All applicable", DISTR_CHOICES), 
-                  selected = "All applicable", 
-                  multiple = TRUE),
-
-      numericInput("alpha", 
-                   "Chi-sq test alpha", 
-                   value = 0.05, 
-                   min = 0.001, 
-                   max = 0.5, 
-                   step = 0.01),
-
-      numericInput("pcutoff", 
-                   "P-value cutoff",
-                   value = 0.1, 
-                   min = 0, 
-                   max = 0.999, 
-                   step = 0.01),
-
-      br(),
-      actionButton("fit_btn", 
-                   "Goodness of fit", 
-                   class = "btn-success", 
-                   icon = icon("chart-line")),
-      hr(),
-      
       h5("Global Data Actions"),
       uiOutput("copy_button_ui"),
       downloadButton("dl_all_btn", 

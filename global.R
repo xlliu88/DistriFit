@@ -1,11 +1,30 @@
 suppressMessages({
   library(shiny)
+  library(dplyr)
+  library(stringr)
+  library(rlang)
+  library(randtests)
+  library(EnvStats)
+  library(rclipboard)
+  library(base64enc)
 })
 
-source('./R/utilities.r')
-source('./R/prn_generator.r')
-source('./R/prob_fit.r')
-source('./R/gofTest.chisq.r')
+home <- "./DistriFit"
+home <- "./"
+source(file.path(home, 'R/utilities.r'))
+source(file.path(home, 'R/prn_generator.r'))
+source(file.path(home, 'R/prob_fit.r'))
+source(file.path(home, 'R/gofTest.chisq.r'))
+
+## Global variables
+M <- 2**31 - 1
+M_INV <- 1/M
+SEED <- NULL
+
+MIN_OBS <- 30
+
+DISTR.NAMES <- read.delim(file.path(home, 'R/distribution.names.txt'), header = T, sep = '\t') %>% 
+  arrange(distr.type, distr.abbr)
 
 DEFAULT_GEN_PARAMS <- setNames(
   lapply(seq_len(nrow(DISTR.NAMES)), function(i) {
@@ -23,52 +42,6 @@ DISTR_CHOICES <- setNames(
   sprintf('%s (%s)', DISTR.NAMES$distr.name, DISTR.NAMES$distr.abbr)
 )
 
-getDensity <- function(distr_abbr, x, params) {
-  distr_type <- getDistrInfo(distr_abbr)$type
-  if(distr_type == 'discrete') x = round(x)
-  dfunc <- ifelse(distr_type == 'discrete',
-                  sprintf('xm%s', distr_abbr),
-                  sprintf('d%s', distr_abbr))
-  if(distr_abbr == 'weibull' && is.null(params$scale)) {
-    params$scale <- 1/params$lambda
-    params$lambda <- NULL
-  }
-  if(distr_abbr == 'erlang') {
-    dfunc <- 'dgamma'
-  }
-  
-  den <- tryCatch(do.call(dfunc, c(list(x = x), params)), 
-                  error = function(e) NULL)
-  return(den)
-  
-}
-
-getBreaks <- function(data, min.bins = 20, max.bins = 100) {
-  if (all(data == round(data))) {
-    return(seq(min(data) - 0.5, max(data) + 0.5, by = 1))
-    
-  } else {
-    nb <- sqrt(length(data)) %>% 
-      round() %>% 
-      min(., max.bins) %>% 
-      max(., min.bins)
-    return(seq(min(data), max(data), length.out = nb + 1))
-  }
-}
-
-# 2. Helper to format multiple datasets of unequal length into a tab-separated table string
-list2tsv <- function(ds_list) {
-  if (length(ds_list) == 0) return("")
-  
-  max_len <- max(sapply(ds_list, length))
-  df <- lapply(ds_list, `length<-`, max_len) %>% as.data.frame()
-  
-  tc <- textConnection("out_str", "w", local = TRUE)
-  write.table(df, file = tc, sep = "\t", row.names = FALSE, col.names = TRUE, na = "", quote = FALSE)
-  close(tc)
-  
-  paste(out_str, collapse = "\n")
-}
 
 plotDistr <- function(data, top.results = NULL, is.fitted = FALSE, title = "") {
   n <- length(data)

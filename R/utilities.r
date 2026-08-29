@@ -3,21 +3,53 @@
 ##    PMF functions for discrete distributions,
 ##    some help functions
 
-suppressMessages({
-  library(dplyr)
-  library(stringr)
-  library(rlang)
-  library(randtests)
-  library(EnvStats)
-  library(rclipboard)
-  library(base64enc)
-})
 
-## minimal observation for reliable test
-MIN_OBS <- 30
+getDensity <- function(distr_abbr, x, params) {
+  distr_type <- getDistrInfo(distr_abbr)$type
+  if(distr_type == 'discrete') x = round(x)
+  dfunc <- ifelse(distr_type == 'discrete',
+                  sprintf('xm%s', distr_abbr),
+                  sprintf('d%s', distr_abbr))
+  if(distr_abbr == 'weibull' && is.null(params$scale)) {
+    params$scale <- 1/params$lambda
+    params$lambda <- NULL
+  }
+  if(distr_abbr == 'erlang') {
+    dfunc <- 'dgamma'
+  }
+  
+  den <- tryCatch(do.call(dfunc, c(list(x = x), params)), 
+                  error = function(e) NULL)
+  return(den)
+  
+}
 
-DISTR.NAMES <- read.delim('./R/distribution.names.txt', header = T, sep = '\t') %>% 
-  arrange(distr.type, distr.abbr)
+getBreaks <- function(data, min.bins = 20, max.bins = 100) {
+  if (all(data == round(data))) {
+    return(seq(min(data) - 0.5, max(data) + 0.5, by = 1))
+    
+  } else {
+    nb <- sqrt(length(data)) %>% 
+      round() %>% 
+      min(., max.bins) %>% 
+      max(., min.bins)
+    return(seq(min(data), max(data), length.out = nb + 1))
+  }
+}
+
+# Helper to format multiple datasets of unequal length into a tab-separated table string
+list2tsv <- function(ds_list) {
+  if (length(ds_list) == 0) return("")
+  
+  max_len <- max(sapply(ds_list, length))
+  df <- lapply(ds_list, `length<-`, max_len) %>% as.data.frame()
+  
+  tc <- textConnection("out_str", "w", local = TRUE)
+  write.table(df, file = tc, sep = "\t", row.names = FALSE, col.names = TRUE, na = "", quote = FALSE)
+  close(tc)
+  
+  paste(out_str, collapse = "\n")
+}
 
 ## format parameter list for better display
 param2str <- function(param) {
