@@ -1,8 +1,10 @@
 # PRN Generator & Distribution Fitting — Shiny App
 
-An interactive Shiny front end for the existing PRN-generation / chi-squared
-goodness-of-fit code (`R/utilities.r`, `R/prn_generator.r`, `R/prob_fit.r`,
-`R/gofTest.chisq.r`, `R/main.r`).
+An interactive tool to fit data into probability distributions.
+
+Supported distributions:
+
+- normal
 
 ## Files
 
