@@ -39,20 +39,22 @@ This app provides a comprehensive library in **R** (with an interactive **Shiny 
 ### Discrete Distributions
 
 #### 1. Bernoulli Distribution: $\text{Bern}(p)$
-* **Estimation:** $p = \frac{1}{m} \sum_{i=1}^m x_i$
+* **Estimation:**
+
+$$p = \frac{1}{m} \sum_{i=1}^m x_i$$
 
 #### 2. Binomial Distribution: $\text{Binom}(n, p)$
 * **Log-Likelihood:**
 
 $$\mathcal{L}(x \mid n, p) = \sum_{i=1}^m \left[ \ln \binom{n}{x_i} + x_i \ln p + (n - x_i) \ln (1-p) \right]$$
   
- ($\text{Optimized across integer values of }n \ge \max(x_i)\text{ up to an upper bound of 1000.}$)
+ $$(\text{Optimized across integer values of }n \ge \max(x_i)\text{ up to an upper bound of 1000.})$$
   
 * **Method-of-Moment:**
 
 $$p = \frac{S^2}{\bar{X}}, \quad n = \frac{\bar{X}}{p}$$
 
-Where $\bar{X}=\frac{1}{m} \sum_{i=1}^m x_i$ , and $S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$
+$$\text{Where }\bar{X}=\frac{1}{m} \sum_{i=1}^m x_i$\text{, and }S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$$
 
 #### 3. Geometric Distribution: $\text{Geom}(p)$
 * **Log-Likelihood:**
@@ -60,8 +62,8 @@ Where $\bar{X}=\frac{1}{m} \sum_{i=1}^m x_i$ , and $S^2 = \frac{1}{m-1} \sum_{i=
 $$\mathcal{L}(x \mid p) = \left( \sum_{i=1}^m x_i - m \right) \ln(1-p) + m \ln p$$
 
 #### 4. Negative Binomial Distribution: $\text{NBinom}(r, p)$
+Modeled as total trials $x$ until the $r^{\text{th}}$ success, $0 < p < 1$, $1 < r < \min(x_i)$
 
-(Modeled as total trials $x$ until the $r^{\text{th}}$ success, $0 < p < 1, 1 \le r \le \min(x_i)$)
 * **Log-Likelihood:**
   
 $$\mathcal{L}(x \mid r, p) = \sum_{i=1}^m \left[ \ln \binom{x_i - 1}{r - 1} + (x_i - r) \ln(1-p) + r \ln p \right]$$
@@ -70,7 +72,7 @@ $$\mathcal{L}(x \mid r, p) = \sum_{i=1}^m \left[ \ln \binom{x_i - 1}{r - 1} + (x
 
 $$p = \frac{\bar{X}}{S^2 + \bar{X}}, \quad r = \lfloor p \cdot \bar{X} \rceil$$
   
-Where $\bar{X} = \frac{1}{m} \sum_{i=1}^m x_i , \quad S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$
+$$\text{Where }\bar{X} = \frac{1}{m} \sum_{i=1}^m x_i , \quad S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X}$$
 
 #### 5. Poisson Distribution: $\text{Pois}(\lambda)$
 * **Log-Likelihood:**
@@ -82,7 +84,9 @@ $$\mathcal{L}(x \mid \lambda) = \ln \lambda \sum_{i=1}^m x_i - m\lambda - \sum_{
 ### Continuous Distributions
 
 #### 1. Uniform Distribution: $\text{Unif}(a, b)$
-* **Estimates:** $\hat{a} = \min(x), \quad \hat{b} = \max(x)$
+* **Estimates:**
+
+$$\hat{a} = \min(x), \quad \hat{b} = \max(x)$$
 
 #### 2. Normal Distribution: $\text{Norm}(\mu, \sigma)$
 * **Log-Likelihood:**
@@ -91,7 +95,7 @@ $$\mathcal{L}(x \mid \mu, \sigma) = -\frac{\sum_{i=1}^m (x_i - \mu)^2}{2\sigma^2
 
 * **Method-of-Moment:**
 
-$$ \hat{\mu}  = \frac{1}{m} \sum_{i=1}^m x_i, \quad \hat{\sigma} = \sqrt{\frac{1}{m}\sum_{i=1}^m (x_i - \hat{\mu})^2} $$
+$$\hat{\mu}  = \frac{1}{m} \sum_{i=1}^m x_i, \quad \hat{\sigma} = \sqrt{\frac{1}{m}\sum_{i=1}^m (x_i - \hat{\mu})^2}$$
 
 #### 3. Triangular Distribution: $\text{Tri}(a, b, c)$
 * Initial estimates via Method of Moments:
@@ -120,20 +124,20 @@ $$\mathcal{L}(x \mid r, \lambda) = m r \ln \lambda + (r-1) \sum_{i=1}^m \ln(x_i)
 
 $$\hat{\alpha} = \frac{\hat{\beta} \bar{X}}{1 - \bar{X}}, \quad \hat{\beta} = \frac{\bar{X}(1 - \bar{X})^2}{S^2} - 1 + \bar{X}$$
 
-Where $\bar{X} = \frac{1}{m}\sum x_i, \quad S^2 = \frac{1}{m-1}\sum(x_i - \bar{X})^2$
+$$\text{Where }\bar{X} = \frac{1}{m}\sum x_i, \quad S^2 = \frac{1}{m-1}\sum(x_i - \bar{X})^2$$
 
 #### 7. Erlang Distribution: $\text{Erlang}(k, \lambda)$
 * **Log-Likelihood:**
 
 $$\mathcal{L}(x \mid k, \lambda) = m k \ln \lambda + (k-1) \sum_{i=1}^m \ln(x_i + \epsilon) - \lambda \sum_{i=1}^m x_i - m \ln \Gamma(k)$$
 
-  *(Iteratively optimizes over integer shape values k in {1, 2, ..., 500}.)*
+$$\text{(Iteratively optimizes over integer shape values }k \in {{1, 2, \cdots, 500}}\text{.)}$$
 
 * **Method-of-Moment:**
   
 $$\hat{\lambda} = \frac{\bar{X}}{S^2}, \quad \hat{k} = \lfloor \hat{\lambda} \bar{X} \rceil$$
 
-Where $\bar{X} = \frac{1}{m}\sum_{i=1}^m x_i$  and  $S^2 = \frac{1}{m-1}\sum_{i=1}^m(x_i - \bar{X})^2$*
+$$\text{Where }\bar{X} = \frac{1}{m}\sum_{i=1}^m x_i, \quad  $S^2 = \frac{1}{m-1}\sum_{i=1}^m(x_i - \bar{X})^2$$
 
 #### 8. Weibull Distribution: $\text{Weibull}(r, \lambda)$
 * **Log-Likelihood:**
