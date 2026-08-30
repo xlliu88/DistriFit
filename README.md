@@ -169,66 +169,31 @@ $$\text{Seed}_{n+1} = (16807 \times \text{Seed}_n + 127773) \pmod{2^{31} - 1}$$
 ## 6. Usage Examples
 
 ```{r }
-source("R/main.r")
-
-# 1. Set seed and generate sample dataset (Exponential distribution)
-set_seed(32)
-(paramList <- makeParams('norm'))
-
-sim.data <- xnorm(150, paramList$mean, paramList$sd)
-summary(sim.data)
-
-# 2. Estimate parameters assuming Exponential vs. Triangular distribution
-(para.Est1  <- xnormFit(sim.data))
-(para.Est2 <- xtriFit(sim.data))
-
-# 3. Fit data against Exponential distribution using Chi-Square Test
-fit1 <- distrEstimate(sim.data, distribution = 'norm', estimate.parameters = TRUE)
-
-fit1[[1]]$parameters
-fit1[[1]]$p.value
-
-# 4. Find the overall best-fitted distribution among all choices
-fit2 <- distrEstimate(sim.data, distribution = NULL, estimate.parameters = TRUE, return.best = TRUE)
-
-fit2[[1]]$distr.name
-fit2[[1]]$p.value
-
-# 5. Plot simulated data and fitting result.
-top.fit <- getTopFits(sim.data)
-lapply(seq_len(length(top.fit)), function(i) top.fit[[i]]$distr.name)
-plotDistr(sim.data, top.results = top.fit, is.fitted = T, title = "Normal distri (n = 150)")
-
-```
-
-```{r}
 source("./main.r")
 
 # 1. Set seed and generate sample dataset (Exponential distribution)
 set_seed(32)
-> (paramList <- makeParams('norm'))
+(paramList <- makeParams('norm'))
 $mean
 [1] 9.637029
 
 $sd
 [1] 7.115604
 
-> sim.data <- xnorm(150, paramList$mean, paramList$sd)
-> summary(sim.data)
+sim.data <- xnorm(150, paramList$mean, paramList$sd)
+summary(sim.data)
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
  -6.239   6.344  10.830  10.477  14.629  31.968 
 
-# 2. Estimate parameters assuming Exponential vs. Triangular distribution
-> (para.Est1  <- xnormFit(sim.data))
-fitting normal distribution...
+# 2. Estimate parameters assuming Normal vs. Triangular distribution
+(para.Est1  <- xnormFit(sim.data))
 $mean
 [1] 10.47736
 
 $sd
 [1] 6.611617
 
-> (para.Est2 <- xtriFit(sim.data))
-fitting triangular distribution...
+(para.Est2 <- xtriFit(sim.data))
 $min
 [1] -7.456185
 
@@ -238,27 +203,26 @@ $mode
 $max
 [1] 32.39613
 
-> # 3. Fit data against Exponential distribution using Chi-Square Test
-> fit1 <- distrEstimate(sim.data, distribution = 'norm', estimate.parameters = TRUE)
-fitting normal distribution...
+# 3. Fit data against Exponential distribution using Chi-Square Test
+fit1 <- distrEstimate(sim.data, distribution = 'norm', estimate.parameters = TRUE)
 
-> fit1[[1]]$parameters
+fit1[[1]]$parameters
      mean        sd 
 10.477357  6.611617 
 
-> fit1[[1]]$p.value
+fit1[[1]]$p.value
 [1] 0.08814848
 
 # 4. Find the overall best-fitted distribution among all choices
-> fit2 <- distrEstimate(sim.data, distribution = NULL, estimate.parameters = TRUE, return.best = TRUE)
-> fit2[[1]]$distr.name
+fit2 <- distrEstimate(sim.data, distribution = NULL, estimate.parameters = TRUE, return.best = TRUE)
+fit2[[1]]$distr.name
 [1] "normal" "norm"  
-> fit2[[1]]$p.value
+fit2[[1]]$p.value
 [1] 0.08814848
 
 # 5. Plot simulated data and fitting result.
-> top.fit <- getTopFits(sim.data)
-> lapply(seq_len(length(top.fit)), function(i) top.fit[[i]]$distr.name)
+top.fit <- getTopFits(sim.data)
+lapply(seq_len(length(top.fit)), function(i) top.fit[[i]]$distr.name)
 [[1]]
 [1] "normal" "norm"  
 
@@ -268,6 +232,6 @@ fitting normal distribution...
 [[3]]
 [1] "cauchy"
 
-> plotDistr(sim.data, top.results = top.fit, is.fitted = T, title = "Normal distri (n = 150)")
+plotDistr(sim.data, top.results = top.fit, is.fitted = T, title = "Normal distri (n = 150)")
 
 ```
