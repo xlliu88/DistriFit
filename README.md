@@ -50,7 +50,7 @@ This app provides a comprehensive library in **R** (with an interactive **Shiny 
   
 * **Method-of-Moment:**
 
-    $$ p = \frac{S^2}{\bar{X}}$$
+    $$p = \frac{S^2}{\bar{X}}$$
 
     $$n = \frac{\bar{X}}{p}$$
 
