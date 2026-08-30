@@ -52,9 +52,9 @@ This app provides a comprehensive library in **R** (with an interactive **Shiny 
 
     $$ p = \frac{S^2}{\bar{X}}$$
 
-    $$n = \frac{\bar{X}}{p} $$
+    $$n = \frac{\bar{X}}{p}$$
 
-    *where $\bar{X} = \frac{1}{m} \sum_{i=1}^m x_i$ , and $S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$*
+    *where $\bar{X}=\frac{1}{m} \sum_{i=1}^m x_i$ , and $S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$*
 
 #### 3. Geometric Distribution: $\text{Geom}(p)$
 * **Log-Likelihood:**
