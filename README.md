@@ -46,7 +46,8 @@ This app provides a comprehensive library in **R** (with an interactive **Shiny 
 
   $$\mathcal{L}(x \mid n, p) = \sum_{i=1}^m \left[ \ln \binom{n}{x_i} + x_i \ln p + (n - x_i) \ln (1-p) \right]$$
   
-  *(Optimized across integer values of $n \ge \max(x_i)$ up to an upper bound of 1000.)*
+  ($\textit{Optimized across integer values of }n \ge \max(x_i)\textit{ up to an upper bound of 1000.}$)
+  <i>($\text{Optimized across integer values of }n \ge \max(x_i)\text{ up to an upper bound of 1000.}$)</i>
   
 * **Method-of-Moment:**
 
