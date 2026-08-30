@@ -174,7 +174,7 @@ shinyServer(function(input, output, session) {
         alpha   <- input[[paste0("alpha_", sid)]] %||% 0.05
         fit_distrs <- input[[paste0("fit_distrs_", sid)]] %||% "All applicable"
 
-        top_fits <- if (is_fitted) getTopFits(x, pcutoff, alpha, fit_distrs) else NULL
+        top_fits <- if (is_fitted) getTopFits(x, pcutoff, alpha, target_distrs= fit_distrs) else NULL
 
         # Render Plot to base64 string
         tmp_img <- tempfile(fileext = ".png")
