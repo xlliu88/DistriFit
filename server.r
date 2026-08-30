@@ -94,7 +94,6 @@ shinyServer(function(input, output, session) {
         entry_key <- sprintf("File: %s [%s]", input$datafile$name, col_name)
         current_list[[entry_key]] <- vec
         fitStateMap[[entry_key]]  <- FALSE
-        # previewState[[entry_key]] <- FALSE
       }
     }
     
@@ -108,7 +107,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$gen_reset, {
     dataStore(list())
     dataMetaInfo(list())
-    fitStateMap()
+    fitStateMap <- reactiveValues()
     genCounter(0)
     showNotification("All generated data cleared.", type = "message")
   })

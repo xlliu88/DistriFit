@@ -58,13 +58,9 @@ DISTR_CHOICES <- setNames(
 ## 
 ## if traget_distrs are given, will return all fitting result, sorted by p.value
 getTopFits <- function(x, pcutoff = 0.1, alpha = 0.05, ntop = 3, target_distrs = NULL) {
-    print(x)
-    print(ntop)
     if(!is.null(target_distrs)){
-      print("target distributions defined, return all")
       n.top <- length(target_distrs)
     } else {
-      print(sprintf('target distr not defined, return %d', ntop))
       n.top <- ntop}
     fits <- tryCatch(
       distrEstimate(x = x, distribution = target_distrs, alpha = alpha, return.best = FALSE),
@@ -75,10 +71,6 @@ getTopFits <- function(x, pcutoff = 0.1, alpha = 0.05, ntop = 3, target_distrs =
     pvals      <- sapply(fits, function(r) r$p.value)
     res.sorted <- fits[order(pvals, decreasing = TRUE)]
     topFit     <- res.sorted[sapply(res.sorted, function(r) r$p.value >= pcutoff)]
-    print("target_distrs:")
-    print(target_distrs)
-    print(sprintf("total result: %s", length(res.sorted)))
-    print(sprintf("final result: %s", length(topFit)))
     if (length(topFit) > 0) {
       topFit[seq_len(min(n.top, length(topFit)))]
     } else {

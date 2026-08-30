@@ -1,8 +1,5 @@
 # Distribution Fitting and Pseudo-Random Number Generator
 
-**Author:** Shawn Liu
-
----
 
 ## 1. Program Overview
 
@@ -165,7 +162,7 @@ $$\text{Seed}_{n+1} = (16807 \times \text{Seed}_n + 127773) \pmod{2^{31} - 1}$$
 
 ---
 
-## 6. Usage Examples
+## 6. Command line usage examples
 
 ```{r }
 source("./main.r")
@@ -235,3 +232,32 @@ plotDistr(sim.data, top.results = top.fit, is.fitted = T, title = "Normal distri
 
 ```
 ![norm_fit_n150](./plots/Norm_fit_n150.png)
+
+
+## 7 App usage examples
+
+An interactive App is available at [DistriFit App](https://shinyio.).
+
+You can also download this repository and run it through R console.
+
+```{r}
+library(shiny)
+runApp('DistriFit')
+```
+The app support generating synthetic data, or taking data from a .csv, .txt, or .tsv file. When generating synthetic data, a seed can be set for reproducibility. Each set of generated data will be plotted and fitted separately. When uploading data from a file, each column will be taken in as individual set, ploted and fitted separately. 
+*Note that you need a minimal of 30 data points for reliable distribution fitting.*
+
+#### App input Interface 
+<table style="width:80%; border:none;">
+  <tr>
+    <td style="width:50%; border:none;"><img src="./plots/app_input_prn.png" style="width:100%;"></td>
+    <td style="width:50%; border:none;"><img src="./plots/app_input_file.png" style="width:100%;"></td>
+  </tr>
+</table>
+
+#### App fitting result
+![fitting_example](./plots/distr_fits_snapshot.png)
+
+
+
+
