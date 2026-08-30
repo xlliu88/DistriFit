@@ -245,7 +245,12 @@ shinyServer(function(input, output, session) {
             return(list(vec = vec, is_fitted = is_fitted, fits = NULL))
           }
           
-          fit_distrs <- input[[paste0("fit_distrs_", sid)]]
+          fit_distrs_ <- input[[paste0("fit_distrs_", sid)]]
+          fit_distrs <- if("All applicable" %in% fit_distrs_ || is.null(fit_distrs_)) {
+            fit_distrs <- NULL
+          } else {
+            fit_distrs <- fit_distrs_
+          }
           alpha      <- input[[paste0("alpha_", sid)]] %||% 0.05
           pcutoff    <- input[[paste0("pcutoff_", sid)]] %||% 0.1
           

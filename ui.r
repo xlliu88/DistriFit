@@ -40,7 +40,7 @@ shinyUI(fluidPage(
           selectInput("gen_distr", 
                       "Distribution to sample from",
                       choices = DISTR_CHOICES, 
-                      selected = "unif"),
+                      selected = "norm"),
           uiOutput("gen_params_ui"),
           numericInput("gen_n", 
                        "Number of observations", 

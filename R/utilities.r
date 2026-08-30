@@ -69,15 +69,16 @@ param2str <- function(param, collapse = '\t', pad = 10, indent = 4) {
   return(s)
 }
 
-
 ## to format fit results for display
 ## input: 
-##    fit.res: a list of fitting result from distrEstimate
+##    fit.res: list, fitting result from distrEstimate()
 ## return: 
-##    a vector of strings
-##    each element is a formatted string of one fitting result
+##    formatted string of the fitting result
 fit2str <- function(fit.res, collapse = '\n', pad = 12) {
-  dname <- fit.res$distr.name %>% rev() %>% `[`(1) %>% 
+  distr.name <- fit.res$distr.name
+  dname <- ifelse(length(distr.name) > 1, 
+                  sprintf("%s (%s)", distr.name[1], distr.name[2]), 
+                  distr.name) %>% 
     sprintf("%s: %s", "Distribution", .)
   pval <- fit.res$p.value #%>% 
   pval_str <- ifelse(pval < 1e-4, sprintf("%.4e", pval), sprintf("%.4f",pval)) %>% 

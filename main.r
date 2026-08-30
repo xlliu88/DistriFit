@@ -9,8 +9,7 @@ suppressMessages({
   library(base64enc)
 })
 
-home <- "./DistriFit"
-home <- "./"
+home <- "."
 source(file.path(home, 'R/utilities.r'))
 source(file.path(home, 'R/prn_generator.r'))
 source(file.path(home, 'R/prob_fit.r'))
@@ -42,11 +41,27 @@ DISTR_CHOICES <- setNames(
   sprintf('%s (%s)', DISTR.NAMES$distr.name, DISTR.NAMES$distr.abbr)
 )
 
-getTopFits <- function(x, pcutoff, alpha, selected_distrs) {
-    distrs <- if (is.null(selected_distrs) || "All applicable" %in% selected_distrs) NULL else selected_distrs
-    n.top <- ifelse(!is.null(distrs), length(distrs), 3)
+## find the top best fit distributions, sorted by p-value
+## args:
+##     x: a numeric vector
+##     pcutoff: p.val cutoff for fit result. 
+##     alpha: alph for chi-sq test
+##     ntop: number of fitting result to return
+##     target_distr: vector of distribution names the data to fit against
+##
+## return:
+##     a list of fitting result from distrEstimate() function
+##      
+## if target_distrs is not given, will fit all applicable distributions 
+##    and return fitting results that pass the pcutoff value, up to ntop results
+## if no distribution pass pcutoff, will return top `ntop` result
+## 
+## if traget_distrs are given, will return all fitting result, sorted by p.value
+getTopFits <- function(x, pcutoff = 0.1, alpha = 0.05, ntop = 3, target_distrs = NULL) {
+  
+    n.top <- ifelse(!is.null(target_distrs), length(target_distrs), ntop)
     fits <- tryCatch(
-      distrEstimate(x = x, distribution = distrs, alpha = alpha, return.best = FALSE),
+      distrEstimate(x = x, distribution = target_distrs, alpha = alpha, return.best = FALSE),
       error = function(e) NULL
     )
     if (is.null(fits) || length(fits) == 0) return(NULL)
@@ -148,7 +163,6 @@ plotDistr <- function(data, top.results = NULL, is.fitted = FALSE, title = "") {
       dabbr <- rev(res$distr.name)[1]
       params <- as.list(res$parameters)
       dens   <- tryCatch(getDensity(dabbr, xs, params), error = function(e) NULL)
-      print(head(dens))
       
       if (!is.null(dens) && all(is.finite(dens))) {
         max_dens <- max(max_dens, max(dens, na.rm = TRUE))

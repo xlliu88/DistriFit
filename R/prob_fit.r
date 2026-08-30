@@ -1,5 +1,5 @@
-
-## Norm distribution estimators, continuous distribution ==================================================
+## Continuous distribution =======================================
+## Norm distribution estimators -------------
 ## x ~ (-Inf, Inf)
 xnormFit <- function(x, method = c('mom', 'mle'), param.names = c('mean', 'sd')) {
   cat('fitting normal distribution...\n') 
@@ -22,7 +22,6 @@ xnormFit <- function(x, method = c('mom', 'mle'), param.names = c('mean', 'sd'))
 
 ## MLE estimate of norm distribution 
 xnormFitMLE <- function(x, param.names = c('mean', 'sd')){
-  cat('fitting normal distribution...\n') 
   if(!is.numeric(x)) {
     message('non numeric numbers.')
     return(-1)
@@ -42,7 +41,6 @@ xnormFitMLE <- function(x, param.names = c('mean', 'sd')){
 ## MOM estimate of norm distribution 
 ## x ~ (-Inf, Inf)
 xnormFitMoM <- function(x, param.names = c('mean', 'sd')){
-  cat('fitting normal distribution...\n') 
   if(!is.numeric(x)) {
     message('non numeric numbers.')
     return(-1)
