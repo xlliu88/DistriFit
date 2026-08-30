@@ -1,6 +1,6 @@
 # Distribution Fitting and Pseudo-Random Number Generator
 
-
+[App available here](https://xunliang.shinyapps.io/distrifit/)
 ## 1. Program Overview
 
 This app provides a comprehensive library in **R** (with an interactive **Shiny Web Interface**) for generating pseudo-random numbers, as well as fitting empirical data to standard discrete and continuous probability distributions, estimating parameters, and conducting $\chi^2$ goodness-of-fit tests.
@@ -267,7 +267,7 @@ plotDistr(sim.data, top.results = top.fit, is.fitted = T, title = "Normal distri
 
 ## 7 App usage examples
 
-An interactive App is available at [DistriFit App](https://shinyio.).
+An interactive App is available at [DistriFit App](https://xunliang.shinyapps.io/distrifit/).
 
 You can also download this repository and run it through R console.
 
