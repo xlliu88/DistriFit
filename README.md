@@ -179,7 +179,7 @@ $$\text{Seed}_{n+1} = (16807 \times \text{Seed}_n + 127773) \pmod{2^{31} - 1}$$
 ```text
 ├── ui.r                      # Shiny UI 
 ├── server.r                  # Shiny Server
-├── main.r                    # Global variant, importing routines, ploting func
+├── global.r                    # Global variant, importing routines, ploting func
 ├── R/               
 │   ├── gofTest.chisq.r        # Discrete & continuous Chi-square goodness-of-fit functions
 │   ├── prob_fit.r             # MLE / MoM distribution parameter estimators
