@@ -50,9 +50,7 @@ This app provides a comprehensive library in **R** (with an interactive **Shiny 
   
 * **Method-of-Moment:**
 
-    $$p = \frac{S^2}{\bar{X}}$$
-
-    $$n = \frac{\bar{X}}{p}$$
+    $$p = \frac{S^2}{\bar{X}}, \quad n = \frac{\bar{X}}{p}$$
 
     *where $\bar{X}=\frac{1}{m} \sum_{i=1}^m x_i$ , and $S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$*
 
