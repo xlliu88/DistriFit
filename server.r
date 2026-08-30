@@ -251,10 +251,11 @@ shinyServer(function(input, output, session) {
           } else {
             fit_distrs <- fit_distrs_
           }
+          
           alpha      <- input[[paste0("alpha_", sid)]] %||% 0.05
           pcutoff    <- input[[paste0("pcutoff_", sid)]] %||% 0.1
           
-          fits <- getTopFits(vec, pcutoff, alpha, fit_distrs)
+          fits <- getTopFits(vec, pcutoff, alpha, target_distr = fit_distrs)
           return(list(vec = vec,
                     is_fitted = is_fitted,
                     fits = fits
