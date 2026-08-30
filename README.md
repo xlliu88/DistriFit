@@ -58,10 +58,12 @@ This app provides a comprehensive library in **R** (with an interactive **Shiny 
 #### 4. Negative Binomial Distribution: $\text{NBinom}(r, p)$
 *Modeled as total trials $x$ until the $r^{\text{th}}$ success, $0 < p < 1, 1 \le r \le \min(x_i)$*
 * **Log-Likelihood:**
+  
   $$\mathcal{L}(x \mid r, p) = \sum_{i=1}^m \left[ \ln \binom{x_i - 1}{r - 1} + (x_i - r) \ln(1-p) + r \ln p \right]$$
 
 * **Method-of-Moment:**
   $$ p = \frac{\bar{X}}{S^2 + \bar{X}}, \quad r = \lfloor p \cdot \bar{X} \rceil $$
+  
   *where $\bar{X} = \frac{1}{m} \sum_{i=1}^m x_i , \quad S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$*
 
 #### 5. Poisson Distribution: $\text{Pois}(\lambda)$
