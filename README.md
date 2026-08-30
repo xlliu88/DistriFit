@@ -286,7 +286,7 @@ The app support generating synthetic data, or taking data from a .csv, .txt, or 
   </tr>
 </table>
 
-#### App fitting result
+#### An example of App fitting result
 ![fitting_example](./plots/distr_fits_snapshot.png)
 
 
