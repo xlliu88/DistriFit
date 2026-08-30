@@ -1,3 +1,4 @@
+# source('./main.r')
 shinyUI(fluidPage(
 
   tags$head(

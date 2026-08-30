@@ -1,3 +1,4 @@
+print('importing libraries')
 suppressMessages({
   library(shiny)
   library(dplyr)
@@ -15,6 +16,7 @@ source(file.path(home, 'R/prn_generator.r'))
 source(file.path(home, 'R/prob_fit.r'))
 source(file.path(home, 'R/gofTest.chisq.r'))
 
+print('setting global variables')
 ## Global variables
 M <- 2**31 - 1
 M_INV <- 1/M
@@ -149,12 +151,17 @@ plotDistr <- function(data, top.results = NULL, is.fitted = FALSE, title = "") {
   h <- hist(data, breaks = brks, plot = FALSE)
   hist_col <- if (is.fitted) "gray80" else hist_col0
   
-  plot(h, freq = TRUE, col = hist_col, border = "white",
-       xlim = xlims, main = "", xlab = "x", ylab = "Frequency", cex.axis = 0.85)
+  plot(h, freq = F, 
+       col = hist_col, 
+       border = "white",
+       xlim = xlims, 
+       main = "", 
+       xlab = "x", 
+       ylab = "Frequency", 
+       cex.axis = 0.85)
   
   if (is.fitted && !is.null(top.results) && length(top.results) > 0) {
     pdf_cols <- RColorBrewer::brewer.pal(3, 'Set2') 
-    #xs <- seq(xlims[1], xlims[2], length.out = 500)
     xs <- seq(xr[1], xr[2], length.out = 500)
     max_dens <- 0
     curves_data <- list()
