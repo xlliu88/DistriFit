@@ -68,7 +68,7 @@ This app provides a comprehensive library in **R** (with an interactive **Shiny 
 
 * **Method-of-Moment:**
 
-  $$ p = \frac{\bar{X}}{S^2 + \bar{X}}, \quad r = \lfloor p \cdot \bar{X} \rceil $$
+  $$ p = \frac{\bar{X}}{S^2 + \bar{X}},r = \lfloor p \cdot \bar{X} \rceil $$
   
   *where $\bar{X} = \frac{1}{m} \sum_{i=1}^m x_i , \quad S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$*
 
