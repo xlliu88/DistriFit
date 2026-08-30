@@ -1,7 +1,6 @@
 # Distribution Fitting and Pseudo-Random Number Generator
 
-**Author:** Xunliang Liu (Group 234)  
-**Date:** August 2026  
+**Author:** Shawn Liu
 
 ---
 
@@ -235,3 +234,4 @@ lapply(seq_len(length(top.fit)), function(i) top.fit[[i]]$distr.name)
 plotDistr(sim.data, top.results = top.fit, is.fitted = T, title = "Normal distri (n = 150)")
 
 ```
+![norm_fit_n150](./plots/Norm_fit_n150.png)
