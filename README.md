@@ -46,13 +46,15 @@ This app provides a comprehensive library in **R** (with an interactive **Shiny 
 
   $$\mathcal{L}(x \mid n, p) = \sum_{i=1}^m \left[ \ln \binom{n}{x_i} + x_i \ln p + (n - x_i) \ln (1-p) \right]$$
   
-  <p align="center"><i>(Optimized across integer values of $n \ge \max(x_i)$ up to an upper bound of 1000).</i></p>
+  *(Optimized across integer values of $n \ge \max(x_i)$ up to an upper bound of 1000.)*
   
 * **Method-of-Moment:**
 
-    $$ p = \frac{S^2}{\bar{X}},\quad n = \frac{\bar{X}}{p} $$
+    $$ p = \frac{S^2}{\bar{X}}$$
 
-    *where $\bar{X} = \frac{1}{m} \sum_{i=1}^m x_i , \quad S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$*
+    $$n = \frac{\bar{X}}{p} $$
+
+    *where $\bar{X} = \frac{1}{m} \sum_{i=1}^m x_i$ , and $S^2 = \frac{1}{m-1} \sum_{i=1}^m (x_i - \bar{X})$*
 
 #### 3. Geometric Distribution: $\text{Geom}(p)$
 * **Log-Likelihood:**
