@@ -124,12 +124,13 @@ $$ \hat{\mu}  = \frac{1}{m} \sum_{i=1}^m x_i, \quad \hat{\sigma} = \sqrt{\frac{1
 
   $$\mathcal{L}(x \mid k, \lambda) = m k \ln \lambda + (k-1) \sum_{i=1}^m \ln(x_i + \epsilon) - \lambda \sum_{i=1}^m x_i - m \ln \Gamma(k)$$
 
-  <p align="center"><i>(Iteratively optimizes over integer shape values k in {1, 2, ..., 500}).</i></p>
+  *(Iteratively optimizes over integer shape values k in {1, 2, ..., 500}.)*
 
 * **Method-of-Moment:**
+  
   $$ \hat{\lambda} = \frac{\bar{X}}{S^2}, \quad \hat{k} = \lfloor \hat{\lambda} \bar{X} \rceil$$
 
-    *Where $\bar{X} = \frac{1}{m}\sum_{i=1}^m x_i$  and  $S^2 = \frac{1}{m-1}\sum_{i=1}^m(x_i - \bar{X})^2$*
+  *Where $\bar{X} = \frac{1}{m}\sum_{i=1}^m x_i$  and  $S^2 = \frac{1}{m-1}\sum_{i=1}^m(x_i - \bar{X})^2$*
 
 #### 8. Weibull Distribution: $\text{Weibull}(r, \lambda)$
 * **Log-Likelihood:**
